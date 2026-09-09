@@ -1,15 +1,22 @@
 {
   "expo": {
     "name": "Gastos",
-    "slug": "Gastos",
+    "slug": "gastos",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
+    "scheme": "gastos",
+    "experiments": {
+      "typedRoutes": true
+    },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.gastos.app"
     },
     "android": {
+      "package": "com.gastos.app",
+      "versionCode": 4,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -20,6 +27,17 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "@react-native-community/datetimepicker",
+      "expo-font"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "64111171-8738-43d1-bbbd-6bcf179d0eeb"
+      }
     }
   }
 }

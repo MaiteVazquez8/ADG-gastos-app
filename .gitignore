@@ -9,6 +9,9 @@ dist/
 web-build/
 expo-env.d.ts
 
+# EAS
+.eas/
+
 # Native
 .kotlin/
 *.orig.*
@@ -17,6 +20,8 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
+# Local EAS credentials (only if you opt into local credential storage)
+credentials.json
 
 # Metro
 .metro-health-check*
