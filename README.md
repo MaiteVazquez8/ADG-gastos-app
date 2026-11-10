@@ -1,89 +1,304 @@
 # Gastos
 
-App de control de gastos personales construida con **Expo** (SDK 57) y React Native.
+Aplicación de control de gastos personales desarrollada con **Expo SDK 57** y **React Native**.
 
-## Descargar e instalar
+## 📱 Descargar para Android
 
-La app se distribuye como un archivo **APK Android** a través de las **GitHub Releases** de este repositorio.
+**[⬇️ Descargar la última versión](https://github.com/MaiteVazquez8/gastos/releases/latest)**
 
-1. Abrí la pestaña [Releases](https://github.com/<tu-usuario>/gastos/releases) de este repositorio.
-2. Buscá la última versión publicada (formato `v1.0.0`).
-3. Descargá el archivo `app-v1.0.0.apk` adjunto a la Release.
-4. En el celular, tocá el archivo descargado y aceptá la instalación.
-   - Si no conocés la app, Android pedirá que habilites **"Instalar aplicaciones de fuentes desconocidas"** para el navegador o el gestor de archivos que usaste. Confirmá e instalá.
-5. Abrí la app. No requiere cuenta ni conexión a internet para funcionar.
+La aplicación se distribuye mediante **GitHub Releases**.
 
-## Generar un APK
+### Instalación
 
-### Construcción local (rápida, sin credenciales)
+1. Entrá a **[la última Release](https://github.com/MaiteVazquez8/gastos/releases/latest)**.
+2. Descargá el archivo `.apk` de la sección **Assets**.
+3. Abrí el archivo descargado desde tu celular Android.
+4. Si Android solicita permiso para instalar aplicaciones desde esa fuente, habilitalo para el navegador o gestor de archivos que utilizaste.
+5. Confirmá la instalación.
+6. Abrí **Gastos** y empezá a usarla.
 
-Con Node.js instalado:
+> La aplicación no requiere una cuenta ni conexión a Internet para funcionar.
+
+---
+
+## ✨ Funcionalidades
+
+* 💰 Gestión de gastos e ingresos.
+* 📊 Presupuesto mensual.
+* 🗂️ Categorías personalizadas.
+* 📈 Distribución del presupuesto por categorías.
+* 💵 Distribución mediante porcentajes o montos fijos.
+* 📅 Historial mensual.
+* 🎨 Modo claro y oscuro.
+* ✨ Animaciones y microinteracciones.
+* 📱 Interfaz optimizada para Android.
+
+---
+
+## 🛠️ Generar un APK
+
+### Opción recomendada: EAS Build
+
+El proyecto utiliza **Expo Application Services (EAS)** para generar los APK de Android.
+
+#### 1. Instalar EAS CLI
 
 ```bash
-npm install
-npx expo prebuild --platform android --no-install
-cd android
-./gradlew assembleRelease
+npm install -g eas-cli
 ```
 
-El APK queda en `android/app/build/outputs/apk/release/app-release.apk`.
+También se puede utilizar:
 
-### Build administrado con EAS Build (recomendado)
+```bash
+npx eas-cli
+```
 
-1. Instalá el CLI de EAS: `npm install -g eas-cli` (o `npx eas-cli`).
-2. Iniciá sesión: `eas login` (requiere una cuenta en [expo.dev](https://expo.dev)).
-3. Ejecutá:
+#### 2. Iniciar sesión en Expo
+
+```bash
+eas login
+```
+
+Se necesita una cuenta de [Expo](https://expo.dev).
+
+#### 3. Generar el APK
 
 ```bash
 eas build --platform android --profile preview
 ```
 
-Esto compila el APK en los servidores de EAS con la configuración definida en `eas.json`:
+El perfil `preview` está configurado para generar un archivo **`.apk`**.
 
-- Perfil `preview`: genera un **`.apk`** (no `.aab`) para distribución interna, e incrementa el `versionCode` automáticamente.
-- Perfil `production`: genera un `.apk` de lanzamiento.
+Cuando finalice el build, EAS mostrará un enlace para descargarlo.
 
-Al terminar, EAS muestra un vínculo para **descargar el APK**. Ese archivo es el que se adjunta a una GitHub Release.
+### Configuración de EAS
 
-### Automatizado con GitHub Actions
+La configuración se encuentra en `eas.json`.
 
-El repositorio incluye `.github/workflows/build-android.yml`. Al publicar una Release (o de forma manual), el workflow:
+El perfil `preview` utiliza:
 
-1. Compila el APK con EAS Build.
-2. Sube el APK como artefacto del workflow.
-3. Adjunta el APK a la Release que lo disparó.
+* Android.
+* Distribución interna.
+* Formato `.apk`.
+* `versionCode` incrementado automáticamente.
+* Credenciales Android administradas por EAS.
 
-Requiere configurar un secreto de GitHub llamado `EXPO_TOKEN` con un token de acceso de tu cuenta Expo (Settings > Secrets and variables > Actions). Sin ese token, el workflow no corre.
+La aplicación utiliza una **Android Keystore administrada por Expo/EAS**. No debe subirse ninguna clave privada al repositorio.
 
-## APK en el repositorio vs. GitHub Release vs. GitHub Actions
+---
 
-| Cómo se publica | Dónde | Cuándo usarlo |
-| --- | --- | --- |
-| **Release de GitHub** | Página de Releases | Forma principal y recomendada: versiones públicas con historial, notas y un link estable por versión. |
-| **Artefacto de GitHub Actions** | Pestaña "Actions" de cada run | Verificación técnica/QA interno de un build puntual; no es un link estable para usuarios. |
-| **APK commiteado al repositorio** | Código fuente | No se utiliza. Los binarios no pertenecen al repo (bloatean el historial y rompen el diff). |
+## 🔨 Generar un APK localmente
 
-Siempre publicá la versión que van a usar tus usuarios en una **GitHub Release**.
-
-## Publicar una nueva versión (primer release y siguientes)
-
-1. Actualizá `version` y `versionCode` en `app.json` (o usá `eas build --auto-increment`).
-2. Compilá con `eas build --platform android --profile preview` y descargá el APK.
-3. Creá un tag `vX.Y.Z` (`git tag v1.0.0`) y pusheá el repo.
-4. Creá la Release desde la pestaña Releases: elegí el tag, escribí las notas y **adjuntá el APK** que descargaste.
-   - También podés publicar la Release primero y dejar que el workflow de Actions adjunte el APK automáticamente (requiere el secreto `EXPO_TOKEN`).
-
-## Desarrollo
+También es posible generar el APK en una máquina con Android/Gradle configurado.
 
 ```bash
 npm install
-npm start        # Expo Dev Server
+npx expo prebuild --platform android --no-install
 ```
 
-Chequeos disponibles: `npm run typecheck`, `npm run lint`, `npm run test:logic`, `npm run test:stores`.
+En Windows PowerShell:
 
-## Identidad de la app
+```powershell
+cd android
+.\gradlew.bat assembleRelease
+```
 
-- **Nombre:** Gastos
-- **ID de paquete (Android/iOS):** `com.gastos.app`
-- **Versión:** 1.0.0 (`versionCode` 1)
+En macOS/Linux:
+
+```bash
+cd android
+./gradlew assembleRelease
+```
+
+El APK generado estará en:
+
+```text
+android/app/build/outputs/apk/release/app-release.apk
+```
+
+> Para la distribución normal se recomienda utilizar **EAS Build**, ya que evita tener que configurar manualmente todo el entorno Android.
+
+---
+
+## 🚀 Publicar una nueva versión
+
+Las versiones públicas se distribuyen mediante **GitHub Releases**.
+
+### 1. Actualizar la aplicación
+
+Cuando prepares una nueva versión, actualizá el campo `version` en `app.json`.
+
+Por ejemplo:
+
+```json
+{
+  "version": "1.1.0"
+}
+```
+
+El `versionCode` de Android es administrado automáticamente por EAS mediante `autoIncrement`.
+
+### 2. Generar el APK
+
+```bash
+eas build --platform android --profile preview
+```
+
+### 3. Crear un tag
+
+Por ejemplo:
+
+```bash
+git add .
+git commit -m "Release v1.1.0"
+git push
+git tag v1.1.0
+git push origin v1.1.0
+```
+
+### 4. Crear la GitHub Release
+
+En GitHub:
+
+**Releases → Draft a new release**
+
+Seleccioná el tag:
+
+```text
+v1.1.0
+```
+
+Agregá las notas de la versión y adjuntá el APK generado por EAS.
+
+Finalmente, seleccioná:
+
+**Publish release**
+
+La nueva versión quedará disponible para descargar desde:
+
+```text
+https://github.com/<tu-usuario>/gastos/releases/latest
+```
+
+---
+
+## 🤖 GitHub Actions
+
+El proyecto incluye:
+
+```text
+.github/workflows/build-android.yml
+```
+
+Este workflow permite automatizar la generación del APK mediante EAS.
+
+Para utilizarlo es necesario configurar un secreto de GitHub llamado:
+
+```text
+EXPO_TOKEN
+```
+
+El token debe configurarse desde:
+
+**GitHub → Settings → Secrets and variables → Actions**
+
+El token se utiliza para autenticar GitHub Actions con Expo/EAS.
+
+> Nunca guardes el `EXPO_TOKEN` directamente en el código fuente ni lo subas al repositorio.
+
+Si no querés utilizar GitHub Actions, podés generar el APK manualmente con EAS y adjuntarlo a cada Release.
+
+---
+
+## 📦 ¿Dónde se publica el APK?
+
+El APK **no se commitea al repositorio**.
+
+La estructura recomendada es:
+
+```text
+Repositorio
+├── código fuente
+├── configuración
+├── README.md
+└── .github/
+    └── workflows/
+```
+
+Y las aplicaciones compiladas se publican mediante:
+
+```text
+GitHub Releases
+├── v1.0.0
+│   └── Gastos-v1.0.0.apk
+├── v1.1.0
+│   └── Gastos-v1.1.0.apk
+└── ...
+```
+
+Esto mantiene el repositorio liviano y permite conservar el historial de versiones.
+
+---
+
+## 💻 Desarrollo
+
+Instalar las dependencias:
+
+```bash
+npm install
+```
+
+Iniciar Expo:
+
+```bash
+npm start
+```
+
+También podés utilizar:
+
+```bash
+npx expo start
+```
+
+### Chequeos
+
+TypeScript:
+
+```bash
+npm run typecheck
+```
+
+Lint:
+
+```bash
+npm run lint
+```
+
+Tests de lógica:
+
+```bash
+npm run test:logic
+```
+
+Tests de stores:
+
+```bash
+npm run test:stores
+```
+
+---
+
+## 📋 Información de la aplicación
+
+| Propiedad            | Valor               |
+| -------------------- | ------------------- |
+| Nombre               | Gastos              |
+| Plataforma principal | Android             |
+| Framework            | React Native + Expo |
+| Expo SDK             | 57                  |
+| Package ID           | `com.gastos.app`    |
+| Versión actual       | `1.0.0`             |
+| Distribución         | GitHub Releases     |
+| Formato              | APK                 |
+
+---
