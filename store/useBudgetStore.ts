@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { DEFAULT_BUDGET_LIMITS } from '@/constants/finance';
+import { DEFAULT_BUDGET_SHARES } from '@/constants/finance';
+import { toCents } from '@/utils/currency';
 
 export interface CategoryLimit {
   /** Monto máximo asignado a la categoría en el mes (ARS). */
@@ -21,18 +22,19 @@ export interface BudgetStore {
 export const BUDGET_STORAGE_KEY = 'gastos-budget-v1';
 
 /**
- * Límites efectivos de un mes: los defaults de la identidad ADG (Alimentación
- * $300.000, Hogar $350.000, Transporte $120.000, Ocio $130.000, Otros
- * $100.000) pisados por las personalizaciones guardadas del mes.
+ * Límites efectivos de un mes: los por defecto (proporción del DISPONIBLE
+ * DEL MES — ingresos − gastos del mes) pisados por las personalizaciones
+ * guardadas del mes. `disponible` puede ser <= 0 (mes sin plata disponible).
  */
 export function resolveMonthLimits(
   limitsByMonth: Record<string, Record<string, CategoryLimit>>,
   monthKey: string,
+  disponible: number,
 ): Record<string, CategoryLimit> {
   const overrides = limitsByMonth[monthKey];
   const merged: Record<string, CategoryLimit> = {};
-  for (const [categoryId, amount] of Object.entries(DEFAULT_BUDGET_LIMITS)) {
-    merged[categoryId] = { amount, notify80: true };
+  for (const [categoryId, share] of Object.entries(DEFAULT_BUDGET_SHARES)) {
+    merged[categoryId] = { amount: toCents(Math.max(0, disponible) * share), notify80: true };
   }
   if (overrides) {
     for (const [categoryId, limit] of Object.entries(overrides)) {

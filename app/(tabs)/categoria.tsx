@@ -14,15 +14,15 @@ import { useAppTheme } from '@/components/ThemeProvider';
 import { AppText } from '@/components/Text';
 import { getCategoryColors, getCategoryIcons } from '@/constants/finance';
 import { radius, spacing } from '@/constants/layout';
-import { useBudgetStore, resolveMonthLimits } from '@/store/useBudgetStore';
+import { useBudgetStore, resolveMonthLimits, totalMonthLimit } from '@/store/useBudgetStore';
 import { useExpenseStore } from '@/store/useExpenseStore';
 import { useFinanceStore } from '@/store/useFinanceStore';
 import { useMonthStore } from '@/store/useMonthStore';
 import type { IconName } from '@/types';
 import { addCategoryToDistribution, resolveMonthDistribution } from '@/utils/budget';
 import { countExpensesByCategory } from '@/utils/categories';
-import { parseAmount, sanitizeAmountInput } from '@/utils/currency';
-import { formatMonthLabel } from '@/utils/date';
+import { formatArs, parseAmount, sanitizeAmountInput, toCents } from '@/utils/currency';
+import { budgetDisponibleForMonth } from '@/utils/budgetLimits';
 import {
   MAX_CATEGORY_NAME_LENGTH,
   parsePercentageInput,
@@ -46,6 +46,7 @@ export default function CategoriaScreen() {
 
   const monthKey = useMonthStore((state) => state.monthKey);
   const categories = useFinanceStore((state) => state.categories);
+  const incomes = useFinanceStore((state) => state.incomes);
   const distributionsByMonth = useFinanceStore((state) => state.distributionsByMonth);
   const defaultDistribution = useFinanceStore((state) => state.defaultDistribution);
   const addCategory = useFinanceStore((state) => state.addCategory);
@@ -66,9 +67,25 @@ export default function CategoriaScreen() {
     [categories, editId, isEdit],
   );
 
+  const monthExpenses = useMemo(
+    () => expenses.filter((expense) => expense.date.startsWith(monthKey)),
+    [expenses, monthKey],
+  );
+  const disponible = useMemo(
+    () => budgetDisponibleForMonth(incomes, monthExpenses, monthKey),
+    [incomes, monthExpenses, monthKey],
+  );
+
   const currentLimit = existing?.id
     ? limitsByMonth[monthKey]?.[existing.id]?.amount
-    : resolveMonthLimits(limitsByMonth, monthKey)[existing?.id ?? '']?.amount;
+    : resolveMonthLimits(limitsByMonth, monthKey, disponible)[existing?.id ?? '']?.amount;
+
+  const limits = resolveMonthLimits(limitsByMonth, monthKey, disponible);
+  const currentTotal = totalMonthLimit(limits);
+  const ownLimit = existing?.id ? (limits[existing.id]?.amount ?? 0) : 0;
+  const otherSum = toCents(currentTotal - ownLimit);
+  const maxAllowed = Math.max(disponible, currentTotal);
+  const budgetRoom = Math.max(0, toCents(maxAllowed - otherSum));
 
   const colors = getCategoryColors();
   const icons = getCategoryIcons();
@@ -106,7 +123,16 @@ export default function CategoriaScreen() {
   const nameErrorText = nameError ?? validateCategoryName(name);
   const budgetValue = budgetRaw.trim() === '' ? null : parseAmount(budgetRaw);
   const budgetError = budgetRaw.trim() !== '' && budgetValue === null;
-  const canSave = nameErrorText === null && budgetError === false && (!withDistribution || percent !== null);
+  const budgetTooBig =
+    !budgetError && budgetValue !== null && budgetValue > budgetRoom;
+  const limitError = budgetTooBig
+    ? `No podés presupuestar más del disponible del mes. El tope para esta categoría es ${formatArs(budgetRoom)}.`
+    : null;
+  const canSave =
+    nameErrorText === null &&
+    budgetError === false &&
+    budgetTooBig === false &&
+    (!withDistribution || percent !== null);
 
   const expenseCount = existing ? countExpensesByCategory(expenses, existing.id) : 0;
 
@@ -237,7 +263,7 @@ export default function CategoriaScreen() {
                 styles.budgetField,
                 {
                   backgroundColor: palette.card,
-                  borderColor: budgetError ? palette.danger : palette.border,
+                  borderColor: budgetError || limitError ? palette.danger : palette.border,
                 },
               ]}
             >
@@ -258,9 +284,13 @@ export default function CategoriaScreen() {
               <AppText variant="caption" tone="danger" style={styles.errorTop}>
                 Ingresá un monto válido o dejalo vacío.
               </AppText>
+            ) : limitError ? (
+              <AppText variant="caption" tone="danger" style={styles.errorTop}>
+                {limitError}
+              </AppText>
             ) : (
               <AppText variant="caption" tone="tertiary" style={styles.errorTop}>
-                Límite mensual para {formatMonthLabel(monthKey)}. Vacío = sin límite.
+                Disponible del mes: {formatArs(disponible)} · Tope para esta categoría: {formatArs(budgetRoom)}. Vacío = sin límite.
               </AppText>
             )}
           </View>

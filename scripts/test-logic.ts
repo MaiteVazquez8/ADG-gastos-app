@@ -509,7 +509,7 @@ import {
 } from '../utils/movements.ts';
 import { buildMovementsCsv } from '../utils/csv.ts';
 import { resolveMonthLimits, totalMonthLimit } from '../store/useBudgetStore.ts';
-import { DEFAULT_BUDGET_LIMITS } from '../constants/finance.ts';
+import { DEFAULT_BUDGET_SHARES } from '../constants/finance.ts';
 
 check('formatArs(570000)', formatArs(570000), '$570.000');
 check('formatArs(1250000)', formatArs(1250000), '$1.250.000');
@@ -561,11 +561,16 @@ check('csv row count', csv.split('\r\n').length, adgExpenses.length + adgIncomes
 check('csv escapes semicolons', buildMovementsCsv([expense('x', 10, 'food', '2026-11-10', '2026-11-10T12:35:00.000Z', 'a;b')], [], adgCategories).includes('"a;b"'), true);
 check('csv amounts signed', csv.includes('-42500,00'), true);
 
-const resolved = resolveMonthLimits({}, '2026-11');
-check('default budget limits match mock', [resolved.food?.amount, resolved.hogar?.amount, resolved.transport?.amount, resolved.entertainment?.amount, resolved.other?.amount], [300000, 350000, 120000, 130000, 100000]);
-check('default budget total', totalMonthLimit(resolved), 1_000_000);
-check('budget limits override', resolveMonthLimits({ '2026-11': { food: { amount: 12345, notify80: false } } }, '2026-11').food?.amount, 12345);
-check('budget limits other months unaffected', resolveMonthLimits({ '2026-11': { food: { amount: 1, notify80: true } } }, '2026-10').food?.amount, DEFAULT_BUDGET_LIMITS.food);
+// Disponible del mes (tope dinámico): 570.000 de ejemplo (1.250.000 - 680.000).
+const NOV_DISPONIBLE = 570_000;
+const resolved = resolveMonthLimits({}, '2026-11', NOV_DISPONIBLE);
+check('default limits scale to disponible', [resolved.food?.amount, resolved.hogar?.amount, resolved.transport?.amount, resolved.entertainment?.amount, resolved.other?.amount], [171000, 199500, 68400, 74100, 57000]);
+check('default budget total equals disponible', totalMonthLimit(resolved), NOV_DISPONIBLE);
+check('default shares sum to 1', Math.abs(Object.values(DEFAULT_BUDGET_SHARES).reduce((s, x) => s + x, 0) - 1) < 1e-9, true);
+check('default limits scale for other months', resolveMonthLimits({}, '2026-10', 380_000).food?.amount, 114_000);
+check('override wins over disponible scaling', resolveMonthLimits({ '2026-11': { food: { amount: 12345, notify80: false } } }, '2026-11', NOV_DISPONIBLE).food?.amount, 12345);
+check('override keeps other defaults scaled', resolveMonthLimits({ '2026-11': { food: { amount: 12345, notify80: false } } }, '2026-11', NOV_DISPONIBLE).hogar?.amount, 199500);
+check('other months unaffected by override elsewhere', resolveMonthLimits({ '2026-11': { food: { amount: 1, notify80: true } } }, '2026-10', 380_000).food?.amount, 114_000);
 
 console.log(failures === 0 ? '\nALL PASS' : `\n${failures} FAILURES`);
 process.exit(failures === 0 ? 0 : 1);

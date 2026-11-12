@@ -1,8 +1,9 @@
-import type { Expense, FinanceCategory } from '@/types';
+import type { Expense, FinanceCategory, Income } from '@/types';
 import { toCents } from '@/utils/currency';
 import { getMonthKey } from '@/utils/date';
 import { resolveCategory } from '@/utils/categories';
-import { resolveMonthLimits, type BudgetStore } from '@/store/useBudgetStore';
+import { totalIncomeForMonth } from '@/utils/budget';
+import { resolveMonthLimits, totalMonthLimit, type BudgetStore } from '@/store/useBudgetStore';
 
 export interface LimitRow {
   categoryId: string;
@@ -18,6 +19,19 @@ export interface LimitRow {
   notify80: boolean;
 }
 
+/** Disponible del mes: ingresos − gastos (el tope para presupuestar). */
+export function budgetDisponibleForMonth(
+  incomes: readonly Income[],
+  monthExpenses: readonly Expense[],
+  monthKey: string,
+): number {
+  const income = totalIncomeForMonth(incomes, monthKey);
+  const spent = monthExpenses
+    .filter((expense) => getMonthKey(expense.date) === monthKey)
+    .reduce((sum, expense) => sum + expense.amount, 0);
+  return toCents(income - spent);
+}
+
 /**
  * Filas de "Límites por categoría" (mock Presupuestos): gasto acumulado del
  * mes contra el límite efectivo de cada categoría que tenga límite o gasto.
@@ -27,8 +41,9 @@ export function buildLimitRows(
   monthExpenses: readonly Expense[],
   limitsByMonth: BudgetStore['limitsByMonth'],
   monthKey: string,
+  disponible: number,
 ): LimitRow[] {
-  const limits = resolveMonthLimits(limitsByMonth, monthKey);
+  const limits = resolveMonthLimits(limitsByMonth, monthKey, disponible);
   const spentById = new Map<string, number>();
   const countById = new Map<string, number>();
 
@@ -74,7 +89,7 @@ export function buildLimitRows(
     });
   }
 
-  // Los que tienen límite primero, ordenados como el mock: mayor % gastado.
+  // Los que tienen límite primero, ordenados como el mock: mayor presupuesto.
   return rows.sort((a, b) => {
     if (b.limit !== a.limit) {
       return b.limit - a.limit;
@@ -88,8 +103,9 @@ export function monthLimitSummary(
   monthExpenses: readonly Expense[],
   limitsByMonth: BudgetStore['limitsByMonth'],
   monthKey: string,
+  disponible: number,
 ): { spent: number; total: number; percent: number } {
-  const limits = resolveMonthLimits(limitsByMonth, monthKey);
+  const limits = resolveMonthLimits(limitsByMonth, monthKey, disponible);
   const existingIds = new Set(categories.map((category) => category.id));
   const knownLimits = Object.entries(limits).filter(([categoryId]) => existingIds.has(categoryId));
   const total = toCents(

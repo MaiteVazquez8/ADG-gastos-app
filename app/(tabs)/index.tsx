@@ -23,7 +23,7 @@ import { useSettingsStore } from '@/store/useSettingsStore';
 import { dailyTotals } from '@/utils/aggregation';
 import type { IconName } from '@/types';
 import { buildMovements, type Movement } from '@/utils/movements';
-import { formatArs, formatPercentEs, formatSignedArs } from '@/utils/currency';
+import { formatArs, formatPercentEs, formatSignedArs, toCents } from '@/utils/currency';
 import { formatMonthLabel, formatRelativeDay, monthKeyOf, todayISO } from '@/utils/date';
 import { useMotion } from '@/hooks/useMotion';
 import { alpha } from '@/utils/color';
@@ -62,9 +62,10 @@ function useInicioData() {
   );
 
   const budgetTotal = useMemo(() => {
-    const limits = resolveMonthLimits(limitsByMonth, monthKey);
+    const available = toCents(incomeTotal - spentTotal);
+    const limits = resolveMonthLimits(limitsByMonth, monthKey, available);
     return totalMonthLimit(limits);
-  }, [limitsByMonth, monthKey]);
+  }, [limitsByMonth, monthKey, incomeTotal, spentTotal]);
 
   const budgetPercent = budgetTotal > 0 ? (spentTotal / budgetTotal) * 100 : 0;
   const available = incomeTotal - spentTotal;
@@ -180,7 +181,7 @@ function MobileInicio() {
     if (alertedMonthsRef.current.has(monthKey)) {
       return;
     }
-    const limits = resolveMonthLimits(limitsByMonth, monthKey);
+    const limits = resolveMonthLimits(limitsByMonth, monthKey, available);
     const monthExpenses = expenseStore.filter((expense) => expense.date.startsWith(monthKey));
     const over = Object.entries(limits)
       .map(([categoryId, limit]) => {
@@ -203,7 +204,7 @@ function MobileInicio() {
         `${names} ${over.length === 1 ? 'llegó' : 'llegaron'} al 80% del límite mensual.`,
       );
     }
-  }, [budgetAlerts, monthKey, expenseStore, limitsByMonth, categories]);
+  }, [budgetAlerts, monthKey, expenseStore, limitsByMonth, categories, available]);
 
   const recent = movements.slice(0, 3);
   const isEmpty = movements.length === 0 && incomeTotal === 0;
@@ -270,7 +271,7 @@ function MobileInicio() {
                 <AppText variant="caption" tone="secondary" style={styles.tileLabel}>
                   Presupuestado
                 </AppText>
-                <AppText variant="caption" weight="700" style={{ color: palette.primary }}>
+                <AppText variant="caption" weight="700" style={{ color: budgetPercent >= 100 ? palette.danger : palette.primary }}>
                   {formatPercentEs(budgetPercent, 0)} gastado
                 </AppText>
               </View>
