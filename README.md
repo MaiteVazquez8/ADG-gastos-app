@@ -125,28 +125,58 @@ Si el proyecto utiliza módulos nativos que no están incluidos en Expo Go, ser�
 
 ## Estructura del proyecto
 
-La organización general contempla los siguientes elementos:
-
 ```text
-Gastos v 1.2.0/
+Gastos/                       # Raíz del repositorio (paquete npm `gastos`, app `ADG`)
 │
-├── assets/                  # Recursos gráficos y multimedia
-├── components/              # Componentes reutilizables
-├── screens/                 # Pantallas de la aplicación
-├── navigation/              # Configuración de navegación
-├── services/                # Servicios y lógica de acceso a datos
-├── stores/                  # Gestión del estado
-├── hooks/                   # Hooks personalizados
-├── utils/                   # Funciones auxiliares
+├── app/                      # Rutas de la aplicación (expo-router, rutas tipadas)
+│   ├── _layout.tsx           # Stack raíz (StatusBar, GestureHandlerRootView, splash de marca ADG)
+│   └── (tabs)/               # Pestañas principales + pantallas ocultas con tab bar visible
+│       ├── _layout.tsx       # Navegación por pestañas (Inicio · Actividad · Agregar · Análisis · Perfil)
+│       ├── index.tsx         # Inicio (inicio de la app, situación del mes, resumen)
+│       ├── actividad.tsx     # Movimientos (lista + buscador + filtros)
+│       ├── agregar.tsx       # Nuevo gasto / ingreso (form unificado)
+│       ├── analisis.tsx      # Análisis y gráficos por categoría
+│       ├── perfil.tsx        # Perfil del usuario
+│       ├── expense/[id].tsx  # Detalle del movimiento (ruta dinámica)
+│       └── …                 # Resto de pantallas: categorías, presupuestos, historial, filtros, etc.
 │
-├── app.json                 # Configuración de Expo
-├── eas.json                 # Configuración de compilaciones EAS
-├── package.json             # Dependencias y scripts
-├── package-lock.json        # Bloqueo de dependencias
-└── README.md                # Documentación
+├── components/               # Componentes reutilizables de UI y lógica visual
+│   ├── charts/               # Gráficos SVG custom (DonutChart, BarChart)
+│   ├── AdgLogo.tsx           # Logo oficial de ADG (variante de Marketing/Logo)
+│   ├── AdgTabBar.tsx         # Barra de pestañas inferior
+│   ├── DesktopSidebar.tsx    # Barra lateral para pantallas anchas (mock escritorio)
+│   ├── Screen.tsx            # Marco de pantalla responsive (móvil / escritorio)
+│   └── …                     # Botones, cards, formularios, sheets, líneas, anillos, etc.
+│
+├── assets/                   # Recursos gráficos empaquetados en la app
+│   └── brand/                # Logos recortados (uso en runtime)
+│
+├── constants/                # Constantes globales: tema (light/dark), spacing/radius, datos demo
+│
+├── store/                    # Estado global (zustand + persistencia en AsyncStorage)
+│   └── demoSeed.ts           # Carga de datos de demostración (solo primera ejecución)
+│
+├── hooks/                    # Hooks personalizados (useHydration, useMotion)
+├── types/                    # Tipos TypeScript compartidos
+├── utils/                    # Funciones auxiliares puras (moneda, fechas, agregación, movimientos, CSV)
+├── scripts/                  # Utilitarios de prueba ejecutados con Node (test:logic, test:stores, test:demo)
+│
+├── docs/                     # Documentación y material de diseño (no va a la app)
+│   ├── Marketing/            # Logos originales, redes sociales, manual de marca y plan de marketing (PDF/PPTX)
+│   ├── Mock/                 # Diseño de referencia de la app (01 Vistas, 02 Componentes, 04 Estructuras)
+│   └── proyecto final - Maite Vazquez.docx / .pdf   # Memoria descriptiva del proyecto
+│
+├── app.json                  # Configuración de Expo (nombre ADG, íconos, tema oscuro, plugins)
+├── eas.json                  # Configuración de builds con EAS (preview/production, APK)
+├── .npmrc                    # Configuración de npm (legacy-peer-deps)
+├── eslint.config.js          # Reglas de lint
+├── expo-env.d.ts             # Tipos de Expo
+├── package.json              # Dependencias y scripts
+├── package-lock.json         # Bloqueo de dependencias
+└── README.md                 # Este archivo
 ```
 
-La estructura es orientativa. Los directorios y archivos concretos dependen de la organización implementada en el repositorio.
+`node_modules/` y `android/` (proyecto nativo generado con `npx expo prebuild`) se ignoran y no se incluyen en el repositorio. `.github/` existe pero queda vacía tras el commit «cambios» (el workflow de build automático fue eliminado).
 
 ## Verificación y pruebas
 
