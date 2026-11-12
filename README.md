@@ -6,6 +6,12 @@ ADG permite registrar ingresos y gastos, organizar movimientos mediante categor�
 
 La aplicación está orientada a Android y se distribuye mediante archivos APK publicados en GitHub Releases.
 
+## Enlaces
+
+- <mark><strong>Figma</strong></mark> — <a href="https://www.figma.com/design/4yclhnwimuPH6p0VSHqIJG/ADG--Administracion-Digital-de-Gastos-?node-id=0-1&t=XDGFq4iRSydJdIrj-1"><ins>Ver diseño en Figma</ins></a>
+- <mark><strong>Manual de marca</strong></mark> — <a href="https://canva.link/4ig5t2odxqhmg0p"><ins>Ver manual de marca en Canva</ins></a>
+- <mark><strong>Plan de marketing</strong></mark> — <a href="https://canva.link/qia9ahu3r0dqqzd"><ins>Ver plan de marketing en Canva</ins></a>
+
 ## Descargar la aplicación
 
 **[Descargar la última versión de ADG](https://github.com/MaiteVazquez8/gastos/releases/latest)**
