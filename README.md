@@ -1,6 +1,6 @@
-# Gastos
+# ADG
 
-Aplicación de control de gastos personales desarrollada con **Expo SDK 57** y **React Native**.
+Aplicación de control de gastos personales (**ADG · Administración Digital de Gastos**) desarrollada con **Expo SDK 57** y **React Native**.
 
 ## 📱 Descargar para Android
 
@@ -292,7 +292,7 @@ npm run test:stores
 
 | Propiedad            | Valor               |
 | -------------------- | ------------------- |
-| Nombre               | Gastos              |
+| Nombre               | ADG                 |
 | Plataforma principal | Android             |
 | Framework            | React Native + Expo |
 | Expo SDK             | 57                  |

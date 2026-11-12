@@ -11,7 +11,9 @@ interface ThemeStore {
 export const useThemeStore = create<ThemeStore>()(
   persist(
     (set) => ({
-      mode: 'system',
+      // ADG es una identidad oscura: el fondo general es negro. El usuario
+      // puede cambiar a claro desde el toggle o Preferencias.
+      mode: 'dark',
       setMode: (mode) => set({ mode }),
     }),
     {

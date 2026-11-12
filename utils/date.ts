@@ -123,6 +123,15 @@ export function formatISODateLong(iso: string): string {
   return `${WEEKDAYS_SHORT[date.getDay()]}, ${date.getDate()} ${MONTHS_SHORT[date.getMonth()]}`;
 }
 
+/** "10 de noviembre de 2026" — formato largo usado en los campos del mock. */
+export function formatISODateFullEs(iso: string): string {
+  const date = fromISODate(iso);
+  if (Number.isNaN(date.getTime())) {
+    return iso;
+  }
+  return `${date.getDate()} de ${MONTHS_FULL[date.getMonth()].toLowerCase()} de ${date.getFullYear()}`;
+}
+
 export function formatMonthLabel(monthKey: string): string {
   const [year, month] = monthKey.split('-').map(Number);
   if (Number.isNaN(year) || Number.isNaN(month)) {

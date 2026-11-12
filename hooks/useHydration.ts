@@ -1,8 +1,19 @@
 import { useEffect, useState } from 'react';
+import { useBudgetStore } from '@/store/useBudgetStore';
 import { useExpenseStore } from '@/store/useExpenseStore';
 import { useFinanceStore } from '@/store/useFinanceStore';
+import { useMonthStore } from '@/store/useMonthStore';
+import { useSettingsStore } from '@/store/useSettingsStore';
+import { useThemeStore } from '@/store/useThemeStore';
 
-const stores = [useExpenseStore, useFinanceStore];
+const stores = [
+  useExpenseStore,
+  useFinanceStore,
+  useSettingsStore,
+  useBudgetStore,
+  useMonthStore,
+  useThemeStore,
+];
 
 function allHydrated(): boolean {
   return stores.every((store) => store.persist.hasHydrated());

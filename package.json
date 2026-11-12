@@ -39,7 +39,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "expo lint",
     "test:logic": "node --import ./scripts/register-loader.mjs scripts/test-logic.ts",
-    "test:stores": "node --import ./scripts/register-loader.mjs scripts/test-stores.ts"
+    "test:stores": "node --import ./scripts/register-loader.mjs scripts/test-stores.ts",
+    "test:demo": "node --import ./scripts/register-loader.mjs scripts/verify-demo.ts"
   },
   "private": true
 }

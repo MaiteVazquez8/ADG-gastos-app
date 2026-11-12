@@ -13,6 +13,8 @@ export interface Expense {
   date: string;
   /** ISO timestamp of when the expense was created. */
   createdAt: string;
+  /** Payment method id from PAYMENT_METHODS (optional, legacy rows may not have it). */
+  paymentMethod?: string;
 }
 
 export type NewExpense = Omit<Expense, 'id' | 'createdAt'>;
@@ -24,6 +26,8 @@ export interface FinanceCategory {
   /** Brand color used across badges, charts and selection states. */
   color: string;
   createdAt: string;
+  /** 'gasto' (default) or 'ingreso'. Legacy rows are treated as 'gasto'. */
+  type?: 'gasto' | 'ingreso';
 }
 
 export interface Income {
@@ -36,6 +40,8 @@ export interface Income {
   note?: string;
   /** ISO timestamp of when the income was created. */
   createdAt: string;
+  /** Payment method id from PAYMENT_METHODS (optional). */
+  paymentMethod?: string;
 }
 
 export type NewIncome = Omit<Income, 'id' | 'createdAt'>;

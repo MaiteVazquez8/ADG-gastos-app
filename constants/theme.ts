@@ -33,70 +33,75 @@ export interface Palette {
   track: string;
 }
 
+/**
+ * ADG — Administración Digital de Gastos.
+ * Negro como base, verde #1DCD9F para avanzar. Una sola jerarquía en toda la app.
+ * Referencia: Mock/02 · Componentes y sistema visual.png
+ */
 const PALETTES: Record<'light' | 'dark', Palette> = {
   light: {
     isDark: false,
 
-    background: '#F4F6F9',
-    backgroundElevated: '#F4F6F9',
+    background: '#F4F4F4',
+    backgroundElevated: '#F4F4F4',
     card: '#FFFFFF',
-    cardPressed: '#F0F3F7',
-    border: '#E1E6ED',
-    borderStrong: '#D5DBE4',
+    cardPressed: '#EBEBEB',
+    border: '#E2E2E2',
+    borderStrong: '#CFCFCF',
 
-    textPrimary: '#10151D',
-    textSecondary: '#5C6472',
-    textTertiary: '#7E8899',
+    textPrimary: '#000000',
+    textSecondary: '#4B4B4B',
+    textTertiary: '#767676',
     textInverse: '#FFFFFF',
 
-    primary: '#0F9D76',
-    primaryStrong: '#0B7D5F',
-    primarySoft: '#E2F5EF',
-    onPrimary: '#FFFFFF',
+    primary: '#169976',
+    primaryStrong: '#1DCD9F',
+    primarySoft: '#E2F8EE',
+    onPrimary: '#000000',
 
-    danger: '#E5484D',
+    danger: '#D64550',
     dangerStrong: '#B9363B',
-    dangerSoft: '#FDEBEB',
+    dangerSoft: '#FCEBEC',
 
-    success: '#12A150',
-    warning: '#E08C00',
+    success: '#169976',
+    warning: '#B45309',
 
-    overlay: 'rgba(8, 12, 18, 0.5)',
-    shadow: '#0B1220',
+    overlay: 'rgba(0, 0, 0, 0.5)',
+    shadow: '#000000',
 
-    track: '#E7EAF0',
+    track: '#E4E4E4',
   },
   dark: {
     isDark: true,
 
-    background: '#0B0F17',
-    backgroundElevated: '#0F151F',
-    card: '#141B26',
-    cardPressed: '#1F2A3A',
-    border: '#273243',
-    borderStrong: '#35425A',
+    background: '#000000',
+    backgroundElevated: '#0A0A0A',
+    card: '#222222',
+    cardPressed: '#2C2C2C',
+    border: '#2C2C2C',
+    borderStrong: '#3D3D3D',
 
-    textPrimary: '#F0F3F8',
-    textSecondary: '#9AA4B4',
-    textTertiary: '#7C8696',
-    textInverse: '#0B0F17',
+    textPrimary: '#FFFFFF',
+    textSecondary: '#B3B3B3',
+    textTertiary: '#7D7D7D',
+    textInverse: '#000000',
 
-    primary: '#34D399',
-    primaryStrong: '#5FE0AE',
-    primarySoft: '#122A26',
-    onPrimary: '#04130E',
+    primary: '#1DCD9F',
+    primaryStrong: '#169976',
+    primarySoft: '#0E2B21',
+    onPrimary: '#000000',
 
     danger: '#F87171',
     dangerStrong: '#EF4444',
     dangerSoft: '#331518',
 
-    success: '#4ADE80',
+    success: '#1DCD9F',
     warning: '#FBBF24',
 
-    overlay: 'rgba(0, 0, 0, 0.6)',
+    overlay: 'rgba(0, 0, 0, 0.65)',
     shadow: '#000000',
 
-    track: '#182130',
+    track: '#1A1A1A',
   },
 };
 

@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Gastos",
+    "name": "ADG",
     "slug": "gastos",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "scheme": "gastos",
     "experiments": {
       "typedRoutes": true
@@ -18,7 +18,7 @@
       "package": "com.gastos.app",
       "versionCode": 4,
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#000000",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"

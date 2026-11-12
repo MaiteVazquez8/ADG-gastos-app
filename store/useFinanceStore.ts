@@ -20,8 +20,8 @@ export interface FinanceStore {
   /** "Mi distribución habitual": starting point for months without a custom one. */
   defaultDistribution: CategoryDistribution[];
 
-  addCategory: (input: { name: string; icon: IconName; color: string }) => FinanceCategory;
-  updateCategory: (id: string, patch: { name: string; icon: IconName; color: string }) => void;
+  addCategory: (input: { name: string; icon: IconName; color: string; type?: 'gasto' | 'ingreso' }) => FinanceCategory;
+  updateCategory: (id: string, patch: { name: string; icon: IconName; color: string; type?: 'gasto' | 'ingreso' }) => void;
   deleteCategory: (id: string) => void;
 
   addIncome: (input: NewIncome) => Income;

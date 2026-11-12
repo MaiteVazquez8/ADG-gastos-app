@@ -25,6 +25,36 @@ export function formatCurrency(amount: number): string {
   return `${sign}${CURRENCY_SYMBOL}${groupThousands(intPart)},${decimalPart}`;
 }
 
+/** Formatea con el símbolo solo, sin decimales: "$570.000". */
+export function formatArs(amount: number): string {
+  const cents = toCents(amount);
+  const sign = cents < 0 ? '-' : '';
+  const abs = Math.abs(cents);
+  const intPart = Math.floor(abs).toString();
+  return `${sign}${CURRENCY_SYMBOL}${groupThousands(intPart)}`;
+}
+
+/** "$ 570.000" como se muestra en el mock: símbolo, espacio y miles con punto. */
+export function formatArsSpaced(amount: number): string {
+  return formatArs(amount).replace('$', '$ ');
+}
+
+/** Movimiento con signo: "+ $ 150.000" / "− $ 42.500" (signo U+2212). */
+export function formatSignedArs(signedAmount: number): string {
+  const sign = signedAmount >= 0 ? '+' : '−';
+  return `${sign} $ ${groupThousands(Math.floor(Math.abs(toCents(signedAmount))).toString())}`;
+}
+
+/** Porcentaje en formato es-AR: "35,3%". */
+export function formatPercentEs(value: number, decimals = 1): string {
+  return `${value.toFixed(decimals).replace('.', ',')}%`;
+}
+
+/** Entero en formato es-AR: "1.120" (compacto, para ejes de gráficos). */
+export function formatThousandsOnly(value: number): string {
+  return groupThousands(Math.round(Math.abs(value)).toString());
+}
+
 /** Compact value for chart axes, e.g. 1,2k / 3,5m. */
 export function formatCompactCurrency(amount: number): string {
   const abs = Math.abs(amount);

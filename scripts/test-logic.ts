@@ -493,5 +493,79 @@ check('validateIncomeForm amount error', incomeErrors?.amount, 'Ingresá un mont
 check('validateIncomeForm source error', incomeErrors?.source, 'Elegí una fuente');
 check('validateIncomeForm date error', incomeErrors?.date, 'Elegí una fecha válida');
 
+// ---------- ADG additions ----------
+import {
+  formatArs,
+  formatArsSpaced,
+  formatPercentEs,
+  formatSignedArs,
+  formatThousandsOnly,
+} from '../utils/currency.ts';
+import { formatISODateFullEs } from '../utils/date.ts';
+import {
+  buildMovements,
+  filterMovements,
+  movementsInMonth,
+} from '../utils/movements.ts';
+import { buildMovementsCsv } from '../utils/csv.ts';
+import { resolveMonthLimits, totalMonthLimit } from '../store/useBudgetStore.ts';
+import { DEFAULT_BUDGET_LIMITS } from '../constants/finance.ts';
+
+check('formatArs(570000)', formatArs(570000), '$570.000');
+check('formatArs(1250000)', formatArs(1250000), '$1.250.000');
+check('formatArsSpaced(570000)', formatArsSpaced(570000), '$ 570.000');
+check('formatSignedArs(150000)', formatSignedArs(150000), '+ $ 150.000');
+check('formatSignedArs(-42500)', formatSignedArs(-42500), '− $ 42.500');
+check('formatPercentEs(35.29)', formatPercentEs(35.294), '35,3%');
+check('formatPercentEs(68, 0)', formatPercentEs(68, 0), '68%');
+check('formatThousandsOnly(1120)', formatThousandsOnly(1120), '1.120');
+check('formatISODateFullEs', formatISODateFullEs('2026-11-10'), '10 de noviembre de 2026');
+
+const adgCategories: FinanceCategory[] = [
+  cat('food', 'Alimentación'),
+  cat('hogar', 'Hogar'),
+  cat('transport', 'Transporte'),
+];
+const adgExpenses: Expense[] = [
+  expense('e1', 42500, 'food', '2026-11-10', '2026-11-10T12:35:00.000Z', 'Supermercado'),
+  expense('e2', 1500, 'transport', '2026-11-10', '2026-11-10T08:15:00.000Z', 'Colectivo'),
+  expense('e3', 220000, 'hogar', '2026-11-05', '2026-11-05T07:30:00.000Z', 'Alquiler'),
+  expense('e4', 740000, 'food', '2026-10-05', '2026-10-05T12:00:00.000Z', 'Octubre grande'),
+];
+const adgIncomes: Income[] = [
+  income('i1', 1100000, 'sueldo', '2026-11-01', '2026-11-01T09:00:00.000Z'),
+];
+
+const movements = buildMovements(adgExpenses, adgIncomes, adgCategories);
+check('movements length', movements.length, 5);
+check('movements signed amounts', [...movements.map((m) => m.signedAmount)].sort((a, b) => a - b), [-740000, -220000, -42500, -1500, 1100000]);
+check('movements income signed positive', movements.find((m) => m.id === 'i1')?.signedAmount, 1100000);
+check('movements expense signed negative', movements.find((m) => m.id === 'e1')?.signedAmount, -42500);
+check('movements title from note', movements.find((m) => m.id === 'e1')?.title, 'Supermercado');
+check('movements ordered desc by date', movements.map((m) => m.id).slice(0, 3), ['e1', 'e2', 'e3']);
+
+check('movementsInMonth nov', movementsInMonth(movements, '2026-11').map((m) => m.id), ['e1', 'e2', 'e3', 'i1']);
+
+const novFilter = { tipo: 'todos' as const, period: 'mes' as const, categoryId: null, paymentMethod: null, sort: 'recientes' as const };
+check('filterMovements todos', filterMovements(movements, '2026-11', novFilter).map((m) => m.id), ['e1', 'e2', 'e3', 'i1']);
+check('filterMovements gastos', filterMovements(movements, '2026-11', { ...novFilter, tipo: 'gastos' }).map((m) => m.id), ['e1', 'e2', 'e3']);
+check('filterMovements ingresos', filterMovements(movements, '2026-11', { ...novFilter, tipo: 'ingresos' }).map((m) => m.id), ['i1']);
+check('filterMovements categoria', filterMovements(movements, '2026-11', { ...novFilter, categoryId: 'food' }).map((m) => m.id), ['e1']);
+check('filterMovements query', filterMovements(movements, '2026-11', novFilter, 'super').map((m) => m.id), ['e1']);
+check('filterMovements year period', filterMovements(movements, '2026-11', { ...novFilter, period: 'anio' }).length, 5);
+check('filterMovements monto sort', filterMovements(movements, '2026-11', { ...novFilter, sort: 'monto' }).map((m) => m.id)[0], 'i1');
+
+const csv = buildMovementsCsv(adgExpenses, adgIncomes, adgCategories);
+check('csv has header', csv.split('\r\n')[0], 'Fecha;Tipo;Concepto;Categoría;Medio de pago;Monto (ARS);Nota');
+check('csv row count', csv.split('\r\n').length, adgExpenses.length + adgIncomes.length + 1);
+check('csv escapes semicolons', buildMovementsCsv([expense('x', 10, 'food', '2026-11-10', '2026-11-10T12:35:00.000Z', 'a;b')], [], adgCategories).includes('"a;b"'), true);
+check('csv amounts signed', csv.includes('-42500,00'), true);
+
+const resolved = resolveMonthLimits({}, '2026-11');
+check('default budget limits match mock', [resolved.food?.amount, resolved.hogar?.amount, resolved.transport?.amount, resolved.entertainment?.amount, resolved.other?.amount], [300000, 350000, 120000, 130000, 100000]);
+check('default budget total', totalMonthLimit(resolved), 1_000_000);
+check('budget limits override', resolveMonthLimits({ '2026-11': { food: { amount: 12345, notify80: false } } }, '2026-11').food?.amount, 12345);
+check('budget limits other months unaffected', resolveMonthLimits({ '2026-11': { food: { amount: 1, notify80: true } } }, '2026-10').food?.amount, DEFAULT_BUDGET_LIMITS.food);
+
 console.log(failures === 0 ? '\nALL PASS' : `\n${failures} FAILURES`);
 process.exit(failures === 0 ? 0 : 1);
