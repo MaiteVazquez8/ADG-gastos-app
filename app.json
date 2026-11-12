@@ -16,7 +16,7 @@
     },
     "android": {
       "package": "com.gastos.app",
-      "versionCode": 6,
+      "versionCode": 7,
       "adaptiveIcon": {
         "backgroundColor": "#000000",
         "foregroundImage": "./assets/android-icon-foreground.png",
