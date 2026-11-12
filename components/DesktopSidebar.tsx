@@ -7,7 +7,7 @@ import { PressableScale } from '@/components/PressableScale';
 import { useAppTheme } from '@/components/ThemeProvider';
 import { AppText } from '@/components/Text';
 import { radius, spacing } from '@/constants/layout';
-import { DEMO_USER } from '@/constants/demo-data';
+import { PROFILE_LABEL } from '@/constants/demo-data';
 import { alpha } from '@/utils/color';
 
 type SidebarKey =
@@ -97,7 +97,7 @@ export function DesktopSidebar() {
 
       <View style={styles.footer}>
         <AppText variant="body" weight="700" numberOfLines={1}>
-          {DEMO_USER.name}
+          {PROFILE_LABEL}
         </AppText>
         <PressableScale
           onPress={() => router.navigate('/perfil')}

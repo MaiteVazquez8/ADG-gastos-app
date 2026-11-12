@@ -16,12 +16,9 @@ import type { Expense, Income } from '@/types';
  * Total gastos últimos 3 meses: $2.110.000.
  */
 
-/** Persona de demostración mostrada en Perfil (mock). */
-export const DEMO_USER = {
-  name: 'Martina Fernández',
-  detail: 'Perfil personal',
-  currencyNote: 'Moneda principal · Peso argentino',
-} as const;
+/** Etiqueta neutra del perfil (sin identidad inventada). */
+export const PROFILE_LABEL = 'Perfil personal';
+export const PROFILE_CURRENCY_NOTE = 'Moneda principal · Peso argentino';
 
 export const DEMO_DEVELOPER_NOTE = 'ADG · Administración Digital de Gastos';
 

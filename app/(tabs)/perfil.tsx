@@ -9,7 +9,7 @@ import { PressableScale } from '@/components/PressableScale';
 import { Screen } from '@/components/Screen';
 import { useAppTheme } from '@/components/ThemeProvider';
 import { AppText } from '@/components/Text';
-import { DEMO_USER } from '@/constants/demo-data';
+import { PROFILE_CURRENCY_NOTE, PROFILE_LABEL } from '@/constants/demo-data';
 import { radius, spacing } from '@/constants/layout';
 import { useMotion } from '@/hooks/useMotion';
 
@@ -67,16 +67,16 @@ export default function PerfilScreen() {
             </View>
             <View style={styles.userText}>
               <AppText variant="subtitle" weight="800">
-                {DEMO_USER.name}
+                {PROFILE_LABEL}
               </AppText>
               <AppText variant="label" tone="secondary">
-                {DEMO_USER.detail}
+                Sin cuentas ni servidores: tus datos viven acá.
               </AppText>
             </View>
           </View>
           <View style={[styles.userDivider, { backgroundColor: palette.border }]} />
           <AppText variant="label" weight="600" style={{ color: palette.primary }}>
-            {DEMO_USER.currencyNote}
+            {PROFILE_CURRENCY_NOTE}
           </AppText>
         </View>
 
