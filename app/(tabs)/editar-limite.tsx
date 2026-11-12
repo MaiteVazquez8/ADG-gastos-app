@@ -11,12 +11,10 @@ import { SelectSheet } from '@/components/SelectSheet';
 import { useAppTheme } from '@/components/ThemeProvider';
 import { AppText } from '@/components/Text';
 import { radius, spacing } from '@/constants/layout';
-import { useBudgetStore, resolveMonthLimits, totalMonthLimit } from '@/store/useBudgetStore';
-import { useExpenseStore } from '@/store/useExpenseStore';
+import { useBudgetStore, resolveMonthLimits } from '@/store/useBudgetStore';
 import { useFinanceStore } from '@/store/useFinanceStore';
 import { useMonthStore } from '@/store/useMonthStore';
-import { budgetDisponibleForMonth } from '@/utils/budgetLimits';
-import { formatArs, parseAmount, sanitizeAmountInput } from '@/utils/currency';
+import { parseAmount, sanitizeAmountInput } from '@/utils/currency';
 import { formatMonthLabel } from '@/utils/date';
 
 export default function EditarLimiteScreen() {
@@ -27,19 +25,8 @@ export default function EditarLimiteScreen() {
   const monthKey = useMonthStore((state) => state.monthKey);
   const setMonthKey = useMonthStore((state) => state.setMonthKey);
   const categories = useFinanceStore((state) => state.categories);
-  const incomes = useFinanceStore((state) => state.incomes);
-  const expenses = useExpenseStore((state) => state.expenses);
   const limitsByMonth = useBudgetStore((state) => state.limitsByMonth);
   const setMonthLimit = useBudgetStore((state) => state.setMonthLimit);
-
-  const monthExpenses = useMemo(
-    () => expenses.filter((expense) => expense.date.startsWith(monthKey)),
-    [expenses, monthKey],
-  );
-  const disponible = useMemo(
-    () => budgetDisponibleForMonth(incomes, monthExpenses, monthKey),
-    [incomes, monthExpenses, monthKey],
-  );
 
   const expenseCategories = useMemo(
     () => categories.filter((category) => (category.type ?? 'gasto') === 'gasto'),
@@ -51,24 +38,16 @@ export default function EditarLimiteScreen() {
     if (typeof categoria === 'string' && categories.some((c) => c.id === categoria)) {
       return categoria;
     }
-    const withLimit = Object.keys(resolveMonthLimits(limitsByMonth, monthKey, disponible));
+    const withLimit = Object.keys(resolveMonthLimits(limitsByMonth, monthKey));
     return expenseCategories.find((c) => withLimit.includes(c.id))?.id ?? expenseCategories[0]?.id ?? 'food';
-  }, [categoria, monthKey, limitsByMonth, expenseCategories, categories, disponible]);
+  }, [categoria, monthKey, limitsByMonth, expenseCategories, categories]);
 
   const [selectedId, setSelectedId] = useState<string>(initialCategoryId);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [periodPickerOpen, setPeriodPickerOpen] = useState(false);
 
-  const limits = resolveMonthLimits(limitsByMonth, monthKey, disponible);
+  const limits = resolveMonthLimits(limitsByMonth, monthKey);
   const currentLimit = limits[selectedId];
-  // Total actual de límites y espacio restante: la suma de categorías no puede
-  // superar el disponible del mes (se permite bajar aunque ya esté excedido).
-  const currentTotal = totalMonthLimit(limits);
-  const otherSum = totalMonthLimit(
-    Object.fromEntries(Object.entries(limits).filter(([id]) => id !== selectedId)),
-  );
-  const maxAllowed = Math.max(disponible, currentTotal);
-  const room = Math.max(0, maxAllowed - otherSum);
 
   const [amountRaw, setAmountRaw] = useState<string>(() =>
     currentLimit != null ? String(currentLimit.amount) : '',
@@ -92,7 +71,7 @@ export default function EditarLimiteScreen() {
   const [prevCombo, setPrevCombo] = useState(combo);
   if (combo !== prevCombo) {
     setPrevCombo(combo);
-    const entry = resolveMonthLimits(limitsByMonth, monthKey, disponible)[selectedId];
+    const entry = resolveMonthLimits(limitsByMonth, monthKey)[selectedId];
     setAmountRaw(entry != null ? String(entry.amount) : '');
     setNotify80(entry?.notify80 !== false);
   }
@@ -101,11 +80,7 @@ export default function EditarLimiteScreen() {
 
   const amountValue = parseAmount(amountRaw);
   const amountError = amountRaw.trim() !== '' && amountValue === null;
-  const exceedsRoom = amountValue !== null && amountValue > 0 && amountValue > room;
-  const limitError = exceedsRoom
-    ? `No podés presupuestar más del disponible del mes. Para ${selectedCategory?.name ?? 'esta categoría'} el tope es ${formatArs(room)}.`
-    : null;
-  const canSave = amountValue !== null && amountValue > 0 && !exceedsRoom;
+  const canSave = amountValue !== null && amountValue > 0;
 
   const categoryOptions = useMemo(
     () =>
@@ -153,13 +128,13 @@ export default function EditarLimiteScreen() {
           accessibilityLabel={`Categoría: ${selectedCategory?.name ?? 'elegí'}`}
         />
 
-        <FieldRow label="Presupuesto mensual" error={amountError ? 'Ingresá un monto válido' : limitError}>
+        <FieldRow label="Presupuesto mensual" error={amountError ? 'Ingresá un monto válido' : null}>
           <View
             style={[
               styles.amountField,
               {
                 backgroundColor: palette.card,
-                borderColor: amountError || limitError ? palette.danger : palette.border,
+                borderColor: amountError ? palette.danger : palette.border,
               },
             ]}
           >
@@ -178,11 +153,6 @@ export default function EditarLimiteScreen() {
               style={[styles.amountInput, { color: palette.textPrimary }]}
             />
           </View>
-          {!limitError && !amountError ? (
-            <AppText variant="caption" tone="tertiary" style={styles.roomHint}>
-              Disponible del mes: {formatArs(disponible)} · Tope para esta categoría: {formatArs(room)}
-            </AppText>
-          ) : null}
         </FieldRow>
 
         <FieldRow label="Período">
@@ -279,9 +249,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     paddingVertical: 12,
     padding: 0,
-  },
-  roomHint: {
-    marginTop: spacing.xs,
   },
   row: {
     minHeight: 54,

@@ -15,7 +15,7 @@ import { useBudgetStore } from '@/store/useBudgetStore';
 import { useExpenseStore } from '@/store/useExpenseStore';
 import { useFinanceStore } from '@/store/useFinanceStore';
 import { useMonthStore } from '@/store/useMonthStore';
-import { buildLimitRows, budgetDisponibleForMonth, monthLimitSummary } from '@/utils/budgetLimits';
+import { buildLimitRows, monthLimitSummary } from '@/utils/budgetLimits';
 import { formatArs, formatPercentEs } from '@/utils/currency';
 import { useMotion } from '@/hooks/useMotion';
 
@@ -27,25 +27,20 @@ export default function PresupuestosScreen() {
   const monthKey = useMonthStore((state) => state.monthKey);
   const categories = useFinanceStore((state) => state.categories);
   const expenses = useExpenseStore((state) => state.expenses);
-  const incomes = useFinanceStore((state) => state.incomes);
   const limitsByMonth = useBudgetStore((state) => state.limitsByMonth);
 
   const monthExpenses = useMemo(
     () => expenses.filter((expense) => expense.date.startsWith(monthKey)),
     [expenses, monthKey],
   );
-  const disponible = useMemo(
-    () => budgetDisponibleForMonth(incomes, monthExpenses, monthKey),
-    [incomes, monthExpenses, monthKey],
-  );
 
   const rows = useMemo(
-    () => buildLimitRows(categories, monthExpenses, limitsByMonth, monthKey, disponible),
-    [categories, monthExpenses, limitsByMonth, monthKey, disponible],
+    () => buildLimitRows(categories, monthExpenses, limitsByMonth, monthKey),
+    [categories, monthExpenses, limitsByMonth, monthKey],
   );
   const summary = useMemo(
-    () => monthLimitSummary(categories, monthExpenses, limitsByMonth, monthKey, disponible),
-    [categories, monthExpenses, limitsByMonth, monthKey, disponible],
+    () => monthLimitSummary(categories, monthExpenses, limitsByMonth, monthKey),
+    [categories, monthExpenses, limitsByMonth, monthKey],
   );
 
   const entering = motion ? FadeInUp.duration(340) : undefined;
@@ -77,9 +72,6 @@ export default function PresupuestosScreen() {
             </AppText>
           </View>
           <ProgressBar progress={summary.percent} color={palette.primary} height={7} accessibilityLabel="Presupuesto usado" />
-          <AppText variant="caption" tone="tertiary">
-            El tope de presupuestos es el disponible del mes (ingresos − gastos).
-          </AppText>
         </View>
 
         <View style={styles.sectionHeader}>

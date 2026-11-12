@@ -41,26 +41,25 @@ assert('nov movement count (gastos+ingresos)', movementsInMonth(buildMovements(e
 assert('oct movement count', movementsInMonth(buildMovements(expenses, incomes, useFinanceStore.getState().categories), '2026-10').length, 28);
 assert('sep movement count', movementsInMonth(buildMovements(expenses, incomes, useFinanceStore.getState().categories), '2026-09').length, 25);
 
-// 2) Demo budget numbers: disponible 570.000, presupuestado por defecto = 570.000.
-const NOV_DISPONIBLE = 570_000;
-const limits = resolveMonthLimits({}, '2026-11', NOV_DISPONIBLE);
-assert('budget total equals disponible', totalMonthLimit(limits), NOV_DISPONIBLE);
+// 2) Demo budget numbers (static defaults): Alimentación 80%, total 1.000.000, 68%.
+const limits = resolveMonthLimits({}, '2026-11');
+assert('budget total', totalMonthLimit(limits), 1000000);
 const foodSpent = expenses.filter((e) => e.date.startsWith('2026-11') && e.category === 'food').reduce((s, e) => s + e.amount, 0);
 assert('alimentación spent', foodSpent, 240000);
-assert('alimentación pct', Math.round((foodSpent / limits.food.amount) * 100), 140);
+assert('alimentación pct', Math.round((foodSpent / limits.food.amount) * 100), 80);
 const hogarSpent = expenses.filter((e) => e.date.startsWith('2026-11') && e.category === 'hogar').reduce((s, e) => s + e.amount, 0);
 assert('hogar spent', hogarSpent, 220000);
-assert('hogar pct', Math.round((hogarSpent / limits.hogar.amount) * 100), 110);
+assert('hogar pct', Math.round((hogarSpent / limits.hogar.amount) * 100), 63);
 const transportSpent = expenses.filter((e) => e.date.startsWith('2026-11') && e.category === 'transport').reduce((s, e) => s + e.amount, 0);
 assert('transporte spent', transportSpent, 90000);
-assert('transporte pct', Math.round((transportSpent / limits.transport.amount) * 100), 132);
+assert('transporte pct', Math.round((transportSpent / limits.transport.amount) * 100), 75);
 const ocioSpent = expenses.filter((e) => e.date.startsWith('2026-11') && e.category === 'entertainment').reduce((s, e) => s + e.amount, 0);
 assert('ocio spent', ocioSpent, 80000);
-assert('ocio pct', Math.round((ocioSpent / limits.entertainment.amount) * 100), 108);
+assert('ocio pct', Math.round((ocioSpent / limits.entertainment.amount) * 100), 62);
 const otrosSpent = expenses.filter((e) => e.date.startsWith('2026-11') && e.category === 'other').reduce((s, e) => s + e.amount, 0);
 assert('otros spent', otrosSpent, 50000);
-assert('otros pct', Math.round((otrosSpent / limits.other.amount) * 100), 88);
-assert('total spent pct of presupuestado', Math.round((680000 / NOV_DISPONIBLE) * 100), 119);
+assert('otros pct', Math.round((otrosSpent / limits.other.amount) * 100), 50);
+assert('total spent pct', Math.round((680000 / 1000000) * 100), 68);
 
 // 3) Donut shares (mock: 35,3 / 32,4 / 13,2 / 11,8 / 7,3)
 const monthExpenses = expenses.filter((e) => e.date.startsWith('2026-11'));

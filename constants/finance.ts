@@ -53,17 +53,17 @@ export const SEED_DISTRIBUTION: readonly { categoryId: string; percentage: numbe
 ] as const;
 
 /**
- * Proporción por defecto de cada categoría sobre el DISPONIBLE DEL MES
- * (ingresos − gastos), para los meses sin límites personalizados:
- * Alimentación 30% · Hogar 35% · Transporte 12% · Ocio 13% · Otros 10%.
- * El tope real es el disponible (dinámico): no se puede presupuestar más.
+ * Límites mensuales por defecto (ARS) para el presupuesto por categoría de
+ * ADG — DATO ESTÁTICO: Alimentación $300.000, Hogar $350.000, Transporte
+ * $120.000, Ocio $130.000, Otros $100.000. Suman $1.000.000 como en el mock.
+ * Se usan cuando el mes no tiene límites personalizados.
  */
-export const DEFAULT_BUDGET_SHARES: Readonly<Record<string, number>> = {
-  food: 0.3,
-  hogar: 0.35,
-  transport: 0.12,
-  entertainment: 0.13,
-  other: 0.1,
+export const DEFAULT_BUDGET_LIMITS: Readonly<Record<string, number>> = {
+  food: 300_000,
+  hogar: 350_000,
+  transport: 120_000,
+  entertainment: 130_000,
+  other: 100_000,
 } as const;
 
 export interface IncomeSourceMeta {
